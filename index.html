@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Mock-up interattivo dell'applicazione Warehouse Picking per il prelievo degli ordini cliente.">
+  <meta name="theme-color" content="#00796b">
+  <title>Warehouse Picking · Mock-up</title>
+  <style>
+    :root {
+      --background: #f4f6f8;
+      --foreground: #263238;
+      --card: #ffffff;
+      --card-foreground: #263238;
+      --primary: #00796b;
+      --primary-foreground: #ffffff;
+      --secondary: #e0f2f1;
+      --secondary-foreground: #183d38;
+      --muted: #e4e9eb;
+      --muted-foreground: #607178;
+      --accent: #e0f2f1;
+      --accent-foreground: #183d38;
+      --destructive: #d32f2f;
+      --border: #d5dde0;
+      --input: #d5dde0;
+      --ring: #00796b;
+      --viz-series-2: #2e7d32;
+      color-scheme: light;
+    }
+
+    html { min-width: 320px; background: var(--background); }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      background: var(--background);
+      color: var(--foreground);
+    }
+
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--ring) 45%, transparent); outline-offset: 2px; }
+    button:disabled { cursor: default; opacity: .58; }
+
+    .btn {
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--foreground);
+      font: inherit;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--accent); color: var(--accent-foreground); }
+    .btn-primary { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+    .btn-primary:hover { background: color-mix(in srgb, var(--primary) 88%, var(--foreground)); color: var(--primary-foreground); }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #111718;
+        --foreground: #e4eded;
+        --card: #192224;
+        --card-foreground: #e4eded;
+        --primary: #4db6ac;
+        --primary-foreground: #102322;
+        --secondary: #214642;
+        --secondary-foreground: #e2f4f2;
+        --muted: #2b3739;
+        --muted-foreground: #a9b8bb;
+        --accent: #264b47;
+        --accent-foreground: #e2f4f2;
+        --destructive: #ef6b67;
+        --border: #3a484b;
+        --input: #3a484b;
+        --ring: #80cbc4;
+        --viz-series-2: #81c784;
+        color-scheme: dark;
+      }
+    }
+
+    @media (max-width: 700px) { body { padding: 12px; } }
+    @media (max-width: 390px) { body { padding: 0; } }
+  </style>
+</head>
+<body>
+<div id="picking-mockup" aria-label="Mock-up interattivo app prelievi">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+    #picking-mockup {
+      --pm-surface-soft: color-mix(in srgb, var(--muted) 64%, transparent);
+      --pm-primary-soft: color-mix(in srgb, var(--primary) 13%, var(--card));
+      --pm-danger-soft: color-mix(in srgb, var(--destructive) 12%, var(--card));
+      --pm-success: var(--viz-series-2);
+      --pm-success-soft: color-mix(in srgb, var(--viz-series-2) 14%, var(--card));
+      color: var(--foreground);
+      font-family: Roboto, system-ui, sans-serif;
+      width: 100%;
+    }
+
+    #picking-mockup * { box-sizing: border-box; }
+
+    #picking-mockup .pm-layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 430px) minmax(240px, 1fr);
+      gap: 24px;
+      align-items: start;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    #picking-mockup .pm-device {
+      position: relative;
+      overflow: hidden;
+      min-height: 720px;
+      background: var(--card);
+      color: var(--card-foreground);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: 0 14px 34px color-mix(in srgb, var(--foreground) 14%, transparent);
+    }
+
+    #picking-mockup .pm-statusbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 18px 5px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      font-size: 12px;
+    }
+
+    #picking-mockup .pm-appbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      box-shadow: 0 2px 7px color-mix(in srgb, var(--foreground) 18%, transparent);
+    }
+
+    #picking-mockup .pm-appbar-title { flex: 1; min-width: 0; }
+    #picking-mockup .pm-appbar-title strong,
+    #picking-mockup .pm-appbar-title small { display: block; }
+    #picking-mockup .pm-appbar-title strong { font-weight: 500; }
+    #picking-mockup .pm-appbar-title small { opacity: .78; margin-top: 2px; }
+
+    #picking-mockup .pm-icon-btn,
+    #picking-mockup .pm-key,
+    #picking-mockup .pm-row-action,
+    #picking-mockup .pm-demo-btn {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    #picking-mockup .pm-icon-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+    }
+    #picking-mockup .pm-icon-btn:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+
+    #picking-mockup .pm-screen { display: none; min-height: 655px; background: var(--background); }
+    #picking-mockup .pm-screen.is-active { display: block; }
+    #picking-mockup .pm-content { padding: 18px 16px 24px; }
+
+    #picking-mockup .pm-login {
+      min-height: 718px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 28px 26px;
+      background: var(--background);
+    }
+
+    #picking-mockup .pm-brand {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    #picking-mockup .pm-brand-mark {
+      width: 66px;
+      height: 66px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 12px;
+      border-radius: 18px;
+      color: var(--primary-foreground);
+      background: var(--primary);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 25%, transparent);
+    }
+    #picking-mockup .pm-brand h2 { margin: 0; font-weight: 500; }
+    #picking-mockup .pm-brand p { margin: 6px 0 0; color: var(--muted-foreground); }
+
+    #picking-mockup .pm-pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin: 8px 0 26px;
+    }
+    #picking-mockup .pm-pin-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: transparent;
+    }
+    #picking-mockup .pm-pin-dot.is-filled { background: var(--primary); }
+
+    #picking-mockup .pm-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 330px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    #picking-mockup .pm-key {
+      min-height: 58px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--card-foreground);
+      box-shadow: 0 2px 7px color-mix(in srgb, var(--foreground) 13%, transparent);
+      font-size: 20px;
+      font-weight: 500;
+    }
+    #picking-mockup .pm-key:hover { background: var(--accent); color: var(--accent-foreground); }
+    #picking-mockup .pm-key.pm-key-empty { visibility: hidden; }
+
+    #picking-mockup .pm-section-head,
+    #picking-mockup .pm-list-meta,
+    #picking-mockup .pm-item-top,
+    #picking-mockup .pm-detail-row,
+    #picking-mockup .pm-progress-head,
+    #picking-mockup .pm-complete-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #picking-mockup .pm-section-head { margin-bottom: 12px; }
+    #picking-mockup .pm-section-head h3 { margin: 0; font-weight: 500; }
+    #picking-mockup .pm-count { color: var(--muted-foreground); }
+
+    #picking-mockup .pm-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+    }
+    #picking-mockup .pm-tab {
+      position: relative;
+      min-height: 48px;
+      border: 0;
+      background: transparent;
+      color: var(--muted-foreground);
+      font: inherit;
+      cursor: pointer;
+    }
+    #picking-mockup .pm-tab.is-active { color: var(--primary); font-weight: 500; }
+    #picking-mockup .pm-tab.is-active::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--primary);
+    }
+
+    #picking-mockup .pm-pick-list { display: grid; gap: 12px; }
+    #picking-mockup .pm-pick-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: 0 3px 9px color-mix(in srgb, var(--foreground) 8%, transparent);
+    }
+    #picking-mockup .pm-pick-card[hidden] { display: none; }
+    #picking-mockup .pm-list-id { font-weight: 500; }
+    #picking-mockup .pm-list-meta { color: var(--muted-foreground); margin-top: 7px; font-size: 13px; }
+
+    #picking-mockup .pm-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--pm-primary-soft);
+      color: var(--card-foreground);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    #picking-mockup .pm-badge.is-progress { background: var(--pm-success-soft); }
+    #picking-mockup .pm-badge.is-paused { background: var(--pm-danger-soft); }
+
+    #picking-mockup .pm-progress { height: 7px; overflow: hidden; margin: 13px 0 12px; border-radius: 999px; background: var(--muted); }
+    #picking-mockup .pm-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .25s ease; }
+    #picking-mockup .pm-progress-head { color: var(--muted-foreground); font-size: 13px; margin-top: 12px; }
+
+    #picking-mockup .pm-row-action {
+      width: 100%;
+      min-height: 42px;
+      margin-top: 4px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      font-weight: 500;
+    }
+    #picking-mockup .pm-row-action.is-secondary {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--card-foreground);
+    }
+
+    #picking-mockup .pm-order-strip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--pm-surface-soft);
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+    #picking-mockup .pm-order-strip strong { color: var(--foreground); font-weight: 500; }
+
+    #picking-mockup .pm-item-card {
+      padding: 18px;
+      border-radius: 16px;
+      background: var(--card);
+      color: var(--card-foreground);
+      box-shadow: 0 5px 16px color-mix(in srgb, var(--foreground) 10%, transparent);
+    }
+    #picking-mockup .pm-location {
+      min-width: 82px;
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      background: var(--pm-primary-soft);
+    }
+    #picking-mockup .pm-location small { display: block; color: var(--muted-foreground); margin-bottom: 3px; }
+    #picking-mockup .pm-location strong { font-weight: 500; }
+    #picking-mockup .pm-sku { color: var(--muted-foreground); font-size: 13px; }
+    #picking-mockup .pm-item-name { margin: 5px 0 0; font-weight: 500; font-size: 18px; }
+
+    #picking-mockup .pm-qty {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 18px 0 10px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--pm-surface-soft);
+    }
+    #picking-mockup .pm-qty span { color: var(--muted-foreground); }
+    #picking-mockup .pm-qty strong { font-size: 24px; font-weight: 500; }
+    #picking-mockup .pm-detail-row { padding: 9px 0; border-bottom: 1px solid var(--border); }
+    #picking-mockup .pm-detail-row:last-child { border-bottom: 0; }
+    #picking-mockup .pm-detail-row span { color: var(--muted-foreground); }
+    #picking-mockup .pm-detail-row strong { font-weight: 500; text-align: right; }
+
+    #picking-mockup .pm-scan-prompt {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px dashed var(--primary);
+      border-radius: 14px;
+      text-align: center;
+      background: var(--pm-primary-soft);
+    }
+    #picking-mockup .pm-scan-prompt p { margin: 8px 0 14px; color: var(--muted-foreground); }
+    #picking-mockup .pm-actions { display: grid; gap: 10px; margin-top: 12px; }
+    #picking-mockup .pm-skip { background: transparent; color: var(--foreground); border: 1px solid var(--border); }
+
+    #picking-mockup .pm-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: none;
+      align-items: flex-end;
+      background: color-mix(in srgb, var(--foreground) 45%, transparent);
+    }
+    #picking-mockup .pm-overlay.is-open { display: flex; }
+    #picking-mockup .pm-sheet {
+      width: 100%;
+      padding: 18px 16px 24px;
+      border-radius: 22px 22px 0 0;
+      background: var(--card);
+      color: var(--card-foreground);
+      box-shadow: 0 -8px 26px color-mix(in srgb, var(--foreground) 20%, transparent);
+    }
+    #picking-mockup .pm-sheet-handle { width: 42px; height: 4px; margin: -5px auto 15px; border-radius: 99px; background: var(--muted); }
+    #picking-mockup .pm-camera {
+      position: relative;
+      min-height: 205px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--foreground);
+      color: var(--background);
+    }
+    #picking-mockup .pm-camera::before,
+    #picking-mockup .pm-camera::after {
+      content: "";
+      position: absolute;
+      inset: 38px 28px;
+      border: 2px solid currentColor;
+      border-left-width: 0;
+      border-right-width: 0;
+      opacity: .8;
+    }
+    #picking-mockup .pm-laser { width: 72%; height: 2px; background: var(--destructive); box-shadow: 0 0 12px var(--destructive); }
+    #picking-mockup .pm-camera-label { position: absolute; bottom: 15px; font-size: 12px; opacity: .8; }
+    #picking-mockup .pm-simulate { margin: 15px 0 8px; color: var(--muted-foreground); font-size: 13px; }
+    #picking-mockup .pm-scan-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    #picking-mockup .pm-scan-options button { min-height: 48px; }
+
+    #picking-mockup .pm-alert-icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: var(--pm-danger-soft);
+      color: var(--destructive);
+    }
+    #picking-mockup .pm-alert { text-align: center; }
+    #picking-mockup .pm-alert h3 { margin: 0 0 7px; font-weight: 500; }
+    #picking-mockup .pm-alert p { margin: 0 0 14px; color: var(--muted-foreground); }
+    #picking-mockup .pm-alert-data { padding: 12px; border-radius: 12px; background: var(--pm-danger-soft); text-align: left; }
+    #picking-mockup .pm-alert-data div + div { margin-top: 8px; }
+    #picking-mockup .pm-alert-data small { display: block; color: var(--muted-foreground); }
+    #picking-mockup .pm-alert-data strong { font-weight: 500; }
+
+    #picking-mockup .pm-complete { text-align: center; padding: 34px 18px; }
+    #picking-mockup .pm-complete-icon {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: var(--pm-success-soft);
+      color: var(--pm-success);
+    }
+    #picking-mockup .pm-complete h3 { margin: 0 0 8px; font-weight: 500; }
+    #picking-mockup .pm-complete p { color: var(--muted-foreground); }
+    #picking-mockup .pm-summary { margin: 22px 0; padding: 14px; border-radius: 14px; background: var(--pm-surface-soft); text-align: left; }
+
+    #picking-mockup .pm-demo {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card);
+      color: var(--card-foreground);
+    }
+    #picking-mockup .pm-demo h3 { margin: 0 0 5px; font-weight: 500; }
+    #picking-mockup .pm-demo > p { margin: 0 0 16px; color: var(--muted-foreground); }
+    #picking-mockup .pm-demo-buttons { display: grid; gap: 8px; }
+    #picking-mockup .pm-demo-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 45px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      text-align: left;
+    }
+    #picking-mockup .pm-demo-btn.is-active { border-color: var(--primary); background: var(--pm-primary-soft); font-weight: 500; }
+    #picking-mockup .pm-demo-num {
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--muted);
+      color: var(--muted-foreground);
+      font-size: 12px;
+    }
+    #picking-mockup .pm-demo-btn.is-active .pm-demo-num { background: var(--primary); color: var(--primary-foreground); }
+    #picking-mockup .pm-feature-list { margin: 18px 0 0; padding: 16px 0 0; border-top: 1px solid var(--border); list-style: none; }
+    #picking-mockup .pm-feature-list li { display: flex; gap: 9px; margin: 9px 0; color: var(--muted-foreground); }
+    #picking-mockup .pm-check { color: var(--pm-success); font-weight: 500; }
+    #picking-mockup .pm-toast {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 20px;
+      z-index: 8;
+      display: none;
+      padding: 13px 15px;
+      border-radius: 10px;
+      background: var(--foreground);
+      color: var(--background);
+      box-shadow: 0 5px 18px color-mix(in srgb, var(--foreground) 24%, transparent);
+    }
+    #picking-mockup .pm-toast.is-visible { display: block; }
+
+    @media (max-width: 700px) {
+      #picking-mockup .pm-layout { grid-template-columns: 1fr; gap: 14px; }
+      #picking-mockup .pm-device { min-height: 680px; border-radius: 18px; }
+      #picking-mockup .pm-demo { order: -1; }
+      #picking-mockup .pm-demo-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #picking-mockup .pm-feature-list { display: none; }
+    }
+
+    @media (max-width: 390px) {
+      #picking-mockup .pm-demo { padding: 13px; }
+      #picking-mockup .pm-demo-buttons { grid-template-columns: 1fr; }
+      #picking-mockup .pm-scan-options { grid-template-columns: 1fr; }
+      #picking-mockup .pm-device { border-radius: 0; }
+    }
+  </style>
+
+  <div class="pm-layout">
+    <section class="pm-device" aria-live="polite">
+      <div class="pm-screen is-active" data-screen="login">
+        <div class="pm-login">
+          <div class="pm-brand">
+            <div class="pm-brand-mark" aria-hidden="true">
+              <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9M8 5.2l8 4.6"/></svg>
+            </div>
+            <h2>Warehouse Picking</h2>
+            <p>Inserisci il PIN operatore</p>
+          </div>
+          <div class="pm-pin-dots" aria-label="PIN a quattro cifre">
+            <span class="pm-pin-dot"></span><span class="pm-pin-dot"></span><span class="pm-pin-dot"></span><span class="pm-pin-dot"></span>
+          </div>
+          <div class="pm-keypad" aria-label="Tastierino numerico">
+            <button class="pm-key" data-key="1">1</button><button class="pm-key" data-key="2">2</button><button class="pm-key" data-key="3">3</button>
+            <button class="pm-key" data-key="4">4</button><button class="pm-key" data-key="5">5</button><button class="pm-key" data-key="6">6</button>
+            <button class="pm-key" data-key="7">7</button><button class="pm-key" data-key="8">8</button><button class="pm-key" data-key="9">9</button>
+            <button class="pm-key pm-key-empty" aria-hidden="true">•</button><button class="pm-key" data-key="0">0</button><button class="pm-key" data-key="back" aria-label="Cancella ultima cifra">⌫</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-screen" data-screen="lists">
+        <div class="pm-statusbar"><span>09:41</span><span>Wi-Fi&nbsp;&nbsp;▰ 87%</span></div>
+        <header class="pm-appbar">
+          <div class="pm-appbar-title"><strong>Le mie picking list</strong><small>Operatore: Marco R. · OP-042</small></div>
+          <button class="pm-icon-btn" data-action="logout" aria-label="Esci">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3M15 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/></svg>
+          </button>
+        </header>
+        <div class="pm-tabs" role="tablist">
+          <button class="pm-tab is-active" data-filter="all" role="tab">Tutte</button>
+          <button class="pm-tab" data-filter="ready" role="tab">Da iniziare</button>
+          <button class="pm-tab" data-filter="progress" role="tab">In corso</button>
+        </div>
+        <div class="pm-content">
+          <div class="pm-section-head"><h3>Liste disponibili</h3><span class="pm-count">3 liste</span></div>
+          <div class="pm-pick-list">
+            <article class="pm-pick-card" data-state="ready" data-list="A">
+              <div class="pm-list-meta" style="margin-top:0"><span class="pm-list-id">PL-2026-0719-014</span><span class="pm-badge pm-card-status">Da iniziare</span></div>
+              <div class="pm-list-meta"><span>Ordinata per SKU</span><span>6 righe · 18 pz</span></div>
+              <div class="pm-list-meta"><span>Zona A / B</span><span>Priorità normale</span></div>
+              <div class="pm-progress-head"><span class="pm-card-progress-label">Avanzamento</span><strong class="pm-card-percent">0%</strong></div>
+              <div class="pm-progress"><span class="pm-card-bar" style="width:0%"></span></div>
+              <button class="pm-row-action pm-card-action" data-start="A">INIZIA PRELIEVO</button>
+            </article>
+            <article class="pm-pick-card" data-state="progress" data-list="B">
+              <div class="pm-list-meta" style="margin-top:0"><span class="pm-list-id">PL-2026-0719-009</span><span class="pm-badge pm-card-status is-progress">In corso</span></div>
+              <div class="pm-list-meta"><span>Ordinata per ordine</span><span>6 righe · 24 pz</span></div>
+              <div class="pm-list-meta"><span>Ultimo accesso 09:26</span><span>Zona C</span></div>
+              <div class="pm-progress-head"><span class="pm-card-progress-label">3 di 6 righe</span><strong class="pm-card-percent">50%</strong></div>
+              <div class="pm-progress"><span class="pm-card-bar" style="width:50%"></span></div>
+              <button class="pm-row-action pm-card-action" data-start="B">CONTINUA PRELIEVO</button>
+            </article>
+            <article class="pm-pick-card" data-state="ready" data-list="C">
+              <div class="pm-list-meta" style="margin-top:0"><span class="pm-list-id">PL-2026-0719-016</span><span class="pm-badge pm-card-status is-paused">Urgente</span></div>
+              <div class="pm-list-meta"><span>Ordinata per ordine</span><span>6 righe · 9 pz</span></div>
+              <div class="pm-list-meta"><span>Zona A</span><span>Spedizione 11:30</span></div>
+              <div class="pm-progress-head"><span class="pm-card-progress-label">Avanzamento</span><strong class="pm-card-percent">0%</strong></div>
+              <div class="pm-progress"><span class="pm-card-bar" style="width:0%"></span></div>
+              <button class="pm-row-action pm-card-action" data-start="C">INIZIA PRELIEVO</button>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-screen" data-screen="pick">
+        <div class="pm-statusbar"><span>09:41</span><span>Wi-Fi&nbsp;&nbsp;▰ 87%</span></div>
+        <header class="pm-appbar">
+          <button class="pm-icon-btn" data-action="back-lists" aria-label="Torna alle liste">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="pm-appbar-title"><strong id="pm-list-title">PL-2026-0719-014</strong><small id="pm-step-label">Articolo 1 di 6</small></div>
+          <span id="pm-percent">8%</span>
+        </header>
+        <div class="pm-order-strip"><span>Ordine</span><strong id="pm-order">SO-260719-1087</strong><span>·</span><span id="pm-customer">Ferramenta Rossi</span></div>
+        <div class="pm-content">
+          <div class="pm-progress"><span id="pm-pick-progress" style="width:8%"></span></div>
+          <article class="pm-item-card">
+            <div class="pm-item-top">
+              <div><div class="pm-sku" id="pm-sku">SKU ATX-12V-002</div><div class="pm-item-name" id="pm-name">Avvitatore X12 Brushless</div></div>
+              <div class="pm-location"><small>UBICAZIONE</small><strong id="pm-location">A-03-02</strong></div>
+            </div>
+            <div class="pm-qty"><span>Quantità da prelevare</span><strong id="pm-qty">2 pz</strong></div>
+            <div class="pm-detail-row"><span>Barcode atteso</span><strong id="pm-barcode">8051412345012</strong></div>
+            <div class="pm-detail-row"><span>Unità</span><strong>PEZZO</strong></div>
+          </article>
+          <div class="pm-scan-prompt">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 5V3h4M17 3h4v4M21 17v4h-4M7 21H3v-4M7 8v8M10 8v8M14 8v8M17 8v8"/></svg>
+            <p>Inquadra il barcode dell’articolo</p>
+            <button class="pm-row-action" data-action="open-scanner">SCANSIONA BARCODE</button>
+          </div>
+          <div class="pm-actions"><button class="pm-row-action pm-skip" data-action="skip">SALTA ARTICOLO</button></div>
+        </div>
+      </div>
+
+      <div class="pm-screen" data-screen="complete">
+        <div class="pm-statusbar"><span>09:47</span><span>Wi-Fi&nbsp;&nbsp;▰ 86%</span></div>
+        <header class="pm-appbar"><div class="pm-appbar-title"><strong>Esito prelievo</strong><small id="pm-complete-list">PL-2026-0719-014</small></div></header>
+        <div class="pm-complete">
+          <div class="pm-complete-icon" aria-hidden="true">
+            <svg width="41" height="41" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+          </div>
+          <h3 id="pm-complete-title">Prelievo salvato</h3>
+          <p id="pm-complete-text">La lista resta disponibile per il completamento degli articoli saltati.</p>
+          <div class="pm-summary">
+            <div class="pm-detail-row"><span>Prelevati</span><strong id="pm-picked-count">5 righe</strong></div>
+            <div class="pm-detail-row"><span>Da completare</span><strong id="pm-skipped-count">1 riga</strong></div>
+            <div class="pm-detail-row"><span>Stato</span><strong id="pm-final-state">In corso · 83%</strong></div>
+          </div>
+          <button class="pm-row-action" data-action="finish-to-lists">TORNA ALLE PICKING LIST</button>
+        </div>
+      </div>
+
+      <div class="pm-overlay" id="pm-scanner" role="dialog" aria-modal="true" aria-label="Scansione barcode">
+        <div class="pm-sheet">
+          <div class="pm-sheet-handle"></div>
+          <div class="pm-camera"><div class="pm-laser"></div><span class="pm-camera-label">Centra il barcode nell’area</span></div>
+          <div class="pm-simulate">Simula l’esito della scansione</div>
+          <div class="pm-scan-options">
+            <button class="btn btn-primary" data-scan="correct">Corretto</button>
+            <button class="btn" data-scan="wrong">Articolo errato</button>
+            <button class="btn" data-scan="other">Altro ordine</button>
+          </div>
+          <button class="pm-row-action is-secondary" data-action="close-overlay">ANNULLA</button>
+        </div>
+      </div>
+
+      <div class="pm-overlay" id="pm-alert" role="alertdialog" aria-modal="true" aria-label="Errore scansione">
+        <div class="pm-sheet pm-alert">
+          <div class="pm-sheet-handle"></div>
+          <div class="pm-alert-icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5M12 17h.01M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg>
+          </div>
+          <h3 id="pm-alert-title">Articolo non corretto</h3>
+          <p id="pm-alert-text">Il barcode letto non corrisponde all’articolo richiesto.</p>
+          <div class="pm-alert-data">
+            <div><small>Atteso</small><strong id="pm-expected-code">8051412345012 · ATX-12V-002</strong></div>
+            <div><small id="pm-read-label">Letto</small><strong id="pm-read-code">8051412999018 · BAT-18V-004</strong></div>
+          </div>
+          <div class="pm-actions"><button class="pm-row-action" data-action="retry">RIPROVA SCANSIONE</button><button class="pm-row-action is-secondary" data-action="alert-skip">SALTA ARTICOLO</button></div>
+        </div>
+      </div>
+
+      <div class="pm-toast" id="pm-toast">✓ Barcode corretto · prelievo registrato</div>
+    </section>
+
+    <aside class="pm-demo">
+      <h3>Scenario demo</h3>
+      <p>Seleziona uno stato oppure usa direttamente l’app.</p>
+      <div class="pm-demo-buttons">
+        <button class="pm-demo-btn is-active" data-demo="login"><span class="pm-demo-num">1</span>Login operatore</button>
+        <button class="pm-demo-btn" data-demo="lists"><span class="pm-demo-num">2</span>Picking list</button>
+        <button class="pm-demo-btn" data-demo="pick"><span class="pm-demo-num">3</span>Prelievo articolo</button>
+        <button class="pm-demo-btn" data-demo="wrong"><span class="pm-demo-num">4</span>Articolo errato</button>
+        <button class="pm-demo-btn" data-demo="other"><span class="pm-demo-num">5</span>Altro ordine</button>
+        <button class="pm-demo-btn" data-demo="complete"><span class="pm-demo-num">6</span>Ripresa non completo</button>
+      </div>
+      <ul class="pm-feature-list">
+        <li><span class="pm-check">✓</span><span>PIN numerico a 4 cifre</span></li>
+        <li><span class="pm-check">✓</span><span>Liste assegnate, stato e avanzamento</span></li>
+        <li><span class="pm-check">✓</span><span>Sequenza per SKU o numero ordine</span></li>
+        <li><span class="pm-check">✓</span><span>Validazione barcode e ordine cliente</span></li>
+        <li><span class="pm-check">✓</span><span>Salto articolo e ripresa successiva</span></li>
+      </ul>
+    </aside>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.getElementById("picking-mockup");
+      if (!root) return;
+
+      var pin = "";
+      var currentItem = 0;
+      var currentList = "A";
+      var skipped = 0;
+      var picked = 0;
+      var savedStates = {};
+      var skippedItems = [];
+      var resumingSkipped = false;
+      var toastTimer;
+      var items = [
+        { sku: "ATX-12V-002", name: "Avvitatore X12 Brushless", location: "A-03-02", qty: "2 pz", barcode: "8051412345012", order: "SO-260719-1087", customer: "Ferramenta Rossi" },
+        { sku: "BIT-TX25-010", name: "Inserto Torx T25", location: "A-04-06", qty: "4 pz", barcode: "8051412345272", order: "SO-260719-1087", customer: "Ferramenta Rossi" },
+        { sku: "GLV-NIT-M-100", name: "Guanti nitrile tg. M", location: "B-01-11", qty: "1 cf", barcode: "8051412368400", order: "SO-260719-1091", customer: "Edilizia Bianchi" },
+        { sku: "DSK-INOX-115", name: "Disco inox Ø 115 mm", location: "B-05-03", qty: "6 pz", barcode: "8051412391118", order: "SO-260719-1091", customer: "Edilizia Bianchi" },
+        { sku: "MSK-FFP2-020", name: "Mascherina FFP2", location: "C-02-07", qty: "2 cf", barcode: "8051412376900", order: "SO-260719-1096", customer: "Tecno Impianti" },
+        { sku: "BAT-18V-004", name: "Batteria 18V 4Ah", location: "C-06-01", qty: "3 pz", barcode: "8051412999018", order: "SO-260719-1096", customer: "Tecno Impianti" }
+      ];
+
+      function q(selector) { return root.querySelector(selector); }
+      function qa(selector) { return Array.prototype.slice.call(root.querySelectorAll(selector)); }
+
+      function showScreen(name) {
+        qa(".pm-screen").forEach(function (screen) {
+          screen.classList.toggle("is-active", screen.getAttribute("data-screen") === name);
+        });
+        qa(".pm-demo-btn").forEach(function (button) {
+          var demo = button.getAttribute("data-demo");
+          var active = demo === name || (name === "pick" && ["wrong", "other"].indexOf(demo) >= 0 && button.classList.contains("is-active"));
+          if (demo !== "wrong" && demo !== "other") button.classList.toggle("is-active", active);
+          else if (name !== "pick") button.classList.remove("is-active");
+        });
+      }
+
+      function setActiveDemo(name) {
+        qa(".pm-demo-btn").forEach(function (button) {
+          button.classList.toggle("is-active", button.getAttribute("data-demo") === name);
+        });
+      }
+
+      function closeOverlays() { qa(".pm-overlay").forEach(function (overlay) { overlay.classList.remove("is-open"); }); }
+
+      function updatePin() {
+        qa(".pm-pin-dot").forEach(function (dot, index) { dot.classList.toggle("is-filled", index < pin.length); });
+        if (pin.length === 4) {
+          window.setTimeout(function () { pin = ""; updatePin(); showScreen("lists"); setActiveDemo("lists"); }, 180);
+        }
+      }
+
+      function updateItem() {
+        var item = items[currentItem % items.length];
+        q("#pm-sku").textContent = "SKU " + item.sku;
+        q("#pm-name").textContent = item.name;
+        q("#pm-location").textContent = item.location;
+        q("#pm-qty").textContent = item.qty;
+        q("#pm-barcode").textContent = item.barcode;
+        q("#pm-order").textContent = item.order;
+        q("#pm-customer").textContent = item.customer;
+        q("#pm-step-label").textContent = "Articolo " + (currentItem + 1) + " di " + items.length;
+        var percentage = Math.round(((currentItem + 1) / items.length) * 100);
+        q("#pm-percent").textContent = percentage + "%";
+        q("#pm-pick-progress").style.width = percentage + "%";
+        q("#pm-expected-code").textContent = item.barcode + " · " + item.sku;
+      }
+
+      function startList(code) {
+        currentList = code;
+        var saved = savedStates[code];
+        skippedItems = saved ? saved.skippedItems.slice() : [];
+        resumingSkipped = !!(saved && saved.resumeSkipped && skippedItems.length);
+        currentItem = resumingSkipped ? skippedItems[0] : saved ? saved.currentItem : code === "B" ? 3 : 0;
+        skipped = saved ? saved.skipped : 0;
+        picked = saved ? saved.picked : code === "B" ? 3 : 0;
+        q("#pm-list-title").textContent = code === "A" ? "PL-2026-0719-014" : code === "B" ? "PL-2026-0719-009" : "PL-2026-0719-016";
+        updateItem();
+        closeOverlays();
+        showScreen("pick");
+        setActiveDemo("pick");
+      }
+
+      function showToast(message) {
+        var toast = q("#pm-toast");
+        toast.textContent = message;
+        toast.classList.add("is-visible");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.classList.remove("is-visible"); }, 1300);
+      }
+
+      function nextItem(wasSkipped) {
+        var skippedPosition = skippedItems.indexOf(currentItem);
+        if (wasSkipped) {
+          if (skippedPosition < 0) {
+            skippedItems.push(currentItem);
+            skipped += 1;
+          }
+          if (resumingSkipped) { showComplete(); return; }
+        } else {
+          picked += 1;
+          if (skippedPosition >= 0) {
+            skippedItems.splice(skippedPosition, 1);
+            skipped = Math.max(0, skipped - 1);
+          }
+        }
+        if (resumingSkipped) {
+          if (skippedItems.length) {
+            currentItem = skippedItems[0];
+            updateItem();
+          } else {
+            resumingSkipped = false;
+            showComplete();
+          }
+          return;
+        }
+        if (currentItem >= items.length - 1) { showComplete(); return; }
+        currentItem += 1;
+        updateItem();
+        if (wasSkipped) showToast("Articolo saltato · potrai riprenderlo in seguito");
+      }
+
+      function showComplete() {
+        closeOverlays();
+        var totalDone = picked;
+        var totalOpen = skipped;
+        var isComplete = totalOpen === 0;
+        q("#pm-complete-list").textContent = q("#pm-list-title").textContent;
+        q("#pm-complete-title").textContent = isComplete ? "Prelievo completato" : "Prelievo salvato";
+        q("#pm-complete-text").textContent = isComplete ? "Tutti gli articoli della picking list sono stati prelevati." : "La lista resta disponibile per il completamento degli articoli saltati.";
+        q("#pm-picked-count").textContent = totalDone + (totalDone === 1 ? " riga" : " righe");
+        q("#pm-skipped-count").textContent = totalOpen + (totalOpen === 1 ? " riga" : " righe");
+        q("#pm-final-state").textContent = isComplete ? "Completata · 100%" : "In corso · " + Math.round((totalDone / items.length) * 100) + "%";
+        syncListCard(isComplete);
+        showScreen("complete");
+        setActiveDemo("complete");
+      }
+
+      function syncListCard(isComplete) {
+        var card = q('[data-list="' + currentList + '"]');
+        if (!card) return;
+        var percentage = isComplete ? 100 : Math.round((picked / items.length) * 100);
+        var status = card.querySelector(".pm-card-status");
+        var label = card.querySelector(".pm-card-progress-label");
+        var percent = card.querySelector(".pm-card-percent");
+        var bar = card.querySelector(".pm-card-bar");
+        var button = card.querySelector(".pm-card-action");
+        card.setAttribute("data-state", isComplete ? "complete" : "progress");
+        if (status) {
+          status.textContent = isComplete ? "Completata" : "In corso";
+          status.classList.toggle("is-progress", !isComplete);
+        }
+        if (label) label.textContent = isComplete ? items.length + " di " + items.length + " righe" : picked + " di " + items.length + " righe";
+        if (percent) percent.textContent = percentage + "%";
+        if (bar) bar.style.width = percentage + "%";
+        if (button) {
+          button.textContent = isComplete ? "PRELIEVO COMPLETATO" : "CONTINUA PRELIEVO";
+          button.disabled = isComplete;
+        }
+        savedStates[currentList] = {
+          currentItem: currentItem,
+          picked: picked,
+          skipped: skipped,
+          skippedItems: skippedItems.slice(),
+          resumeSkipped: skipped > 0 && currentItem >= items.length - 1
+        };
+      }
+
+      function showAlert(type) {
+        closeOverlays();
+        var other = type === "other";
+        q("#pm-alert-title").textContent = other ? "Articolo di un altro ordine" : "Articolo non corretto";
+        q("#pm-alert-text").textContent = other ? "L’articolo è valido, ma appartiene a un ordine non attivo." : "Il barcode letto non corrisponde all’articolo richiesto.";
+        q("#pm-read-label").textContent = other ? "Associato a" : "Letto";
+        q("#pm-read-code").textContent = other ? "SO-260719-1104 · Idroservice Srl" : "8051412999018 · BAT-18V-004";
+        q("#pm-alert").classList.add("is-open");
+        setActiveDemo(other ? "other" : "wrong");
+      }
+
+      root.addEventListener("click", function (event) {
+        var key = event.target.closest("[data-key]");
+        if (key) {
+          var value = key.getAttribute("data-key");
+          if (value === "back") pin = pin.slice(0, -1); else if (pin.length < 4) pin += value;
+          updatePin();
+          return;
+        }
+
+        var tab = event.target.closest("[data-filter]");
+        if (tab) {
+          var filter = tab.getAttribute("data-filter");
+          qa(".pm-tab").forEach(function (item) { item.classList.toggle("is-active", item === tab); });
+          qa(".pm-pick-card").forEach(function (card) { card.hidden = filter !== "all" && card.getAttribute("data-state") !== filter; });
+          q(".pm-count").textContent = filter === "all" ? "3 liste" : filter === "ready" ? "2 liste" : "1 lista";
+          return;
+        }
+
+        var starter = event.target.closest("[data-start]");
+        if (starter) { startList(starter.getAttribute("data-start")); return; }
+
+        var scan = event.target.closest("[data-scan]");
+        if (scan) {
+          var result = scan.getAttribute("data-scan");
+          if (result === "correct") {
+            closeOverlays();
+            showToast("✓ Barcode corretto · prelievo registrato");
+            window.setTimeout(function () { nextItem(false); }, 550);
+          } else showAlert(result);
+          return;
+        }
+
+        var demo = event.target.closest("[data-demo]");
+        if (demo) {
+          var state = demo.getAttribute("data-demo");
+          setActiveDemo(state);
+          closeOverlays();
+          if (state === "login" || state === "lists") showScreen(state);
+          else if (state === "complete") {
+            currentList = "A";
+            currentItem = 5;
+            skipped = 1;
+            picked = 5;
+            skippedItems = [5];
+            resumingSkipped = false;
+            q("#pm-list-title").textContent = "PL-2026-0719-014";
+            updateItem();
+            showComplete();
+          }
+          else {
+            startList("A");
+            if (state === "wrong" || state === "other") showAlert(state);
+          }
+          return;
+        }
+
+        var actionButton = event.target.closest("[data-action]");
+        if (!actionButton) return;
+        var action = actionButton.getAttribute("data-action");
+        if (action === "logout") { pin = ""; updatePin(); showScreen("login"); setActiveDemo("login"); }
+        if (action === "back-lists") { closeOverlays(); syncListCard(false); showScreen("lists"); setActiveDemo("lists"); }
+        if (action === "finish-to-lists") { closeOverlays(); syncListCard(skipped === 0); showScreen("lists"); setActiveDemo("lists"); }
+        if (action === "open-scanner" || action === "retry") { closeOverlays(); q("#pm-scanner").classList.add("is-open"); }
+        if (action === "close-overlay") closeOverlays();
+        if (action === "skip" || action === "alert-skip") { closeOverlays(); nextItem(true); }
+      });
+
+      updatePin();
+      updateItem();
+    })();
+  </script>
+</div>
+</body>
+</html>
